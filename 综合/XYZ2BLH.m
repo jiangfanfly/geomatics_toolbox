@@ -1,0 +1,32 @@
+function [B,L,H]=XYZ2BLH(X,Y,Z,n)
+%完成空间直角坐标转换到大地坐标
+dd=4.8*10^-10.0;
+ellipsoid=get_ellipsoid(n);
+a=ellipsoid.a;
+b=ellipsoid.b;
+e=(sqrt(a^2-b^2))/a;
+ee=e.^2;
+aa=a;
+L=atan(Y./X);
+B0=Z./sqrt(X.*X+Y.*Y);
+B0=atan(B0);
+Bi=B0;
+while(1)
+    N0=aa./sqrt(1-ee.*sin(Bi).^2.0);
+    tanB=(Z+N0.*ee.*sin(Bi))./sqrt(X.*X+Y.*Y);
+    Bi=atan(tanB);
+    dB=abs(Bi-B0);
+    B0=Bi;
+    if(dB<dd)
+        break;
+    end
+end
+N=N0;
+B=B0;
+if(L<0)
+    L=L+pi;
+end
+H=Z./sin(B)-N.*(1-ee);
+B=rad2dms(B);
+L=rad2dms(L);
+end
